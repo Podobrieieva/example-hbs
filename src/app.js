@@ -1,27 +1,47 @@
 const request = require('request');
 const path = require('path');
 const express = require('express');
+const expressHbs = require("express-handlebars");
 const hbs = require('hbs');
+
 
 const app = express();
 const publicDirectoryPath = path.join(__dirname, '../public');
-const pathViews = path.join(__dirname, '../templates/views');
-const partialsPath = path.join(__dirname, '../templates/partials');
+// const pathViews = path.join(__dirname, '../templates');
+const partialsPath = path.join(__dirname, '../views/partials');
+const layoutsPath = path.join(__dirname, '../views/layouts');
+
+
+
+app.engine('hbs', expressHbs({
+    layoutsDir: layoutsPath,
+    defaultLayout: 'layouts',
+    extname: 'hbs',
+}))
 
 app.set('view engine', 'hbs')
-app.set('views', pathViews)
+// app.set('views', pathViews)
 hbs.registerPartials(partialsPath);
-
 
 app.use(express.static(publicDirectoryPath));
 
-
-app.get('', (req, res) => {
-    res.render('index', {
-        title: 'ssdd',
-        name: 'Max',
+app.use('/contacts', (req, resp) => {
+    resp.render('contacts', {
+        title: "Мои контакты",
+        emailsVisible: true,
+        emails: ["gavgav@mycorp.com", "mioaw@mycorp.com"],
+        phone: "+1234567890"
     })
+
 });
+
+
+// app.get('', (req, res) => {
+//     res.render('index', {
+//         title: 'ssdd',
+//         name: 'Max',
+//     })
+// });
 
 
 app.get('/about', (req, res) => {
@@ -57,6 +77,11 @@ app.get('/help', (req, res) => {
 app.get('/about/*', (req, res) => {
     res.send('about not found')
 })
+
+app.use("/", (request, response) => {
+      
+    response.render("home.hbs");
+});
 
 
 app.get('*', (req, res) => {
